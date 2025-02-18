@@ -1,6 +1,6 @@
 # LLDAP-Discord
 
-A Discord bot that integrates with GraphQL and LLDAP to manage monthly subscribers by adding and removing their access to an LDAP group.
+A Discord bot that integrates with GraphQL and LDAP to manage monthly subscribers by adding and removing their access to an LDAP group.
 
 ## Features
 - **Automated Subscription Management**: Grants and revokes access based on the subscriber role.
