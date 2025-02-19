@@ -14,7 +14,7 @@ To configure the bot, create a `.env` file with the following variables:
 
 ```ini
 DISCORD_BOT_TOKEN=DISCORDTOKEN
-LDAP_SERVER_URL=ldap://yoursite.com:25628
+LDAP_SERVER_URL=ldap://yoursite.com:3890
 LDAP_BIND_DN=uid=admin,ou=people,dc=example,dc=com
 LDAP_BIND_PASSWORD=PASSWORD
 LDAP_BASE_DN=dc=example,dc=com
