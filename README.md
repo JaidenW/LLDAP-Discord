@@ -21,6 +21,8 @@ LDAP_BASE_DN=dc=example,dc=com
 LLDAP_LOGIN_URL=https://YourLLDAPWebPage.com
 SUBSCRIBER_ROLE_NAME=Subscriber
 SUBSCRIBERS_GROUP_ID=4
+LIFETIME_ROLE_NAME=Lifetime
+LIFETIME_GROUP_ID=5
 SERVICE_NAME=YourServiceName
 ```
 
@@ -29,6 +31,8 @@ This bot **does not** handle role subscription management. You must use a separa
 
 Once assigned, users can register an LLDAP account using the `/register` command. They will receive a temporary password and a link to update it via a private message:
 
+![Register Command](https://i.imgur.com/FjPqHJT.png)
+
 ![Reply Example](https://i.imgur.com/ZI5xMyo.png)
 
 ## Available Commands
@@ -36,7 +40,7 @@ Once assigned, users can register an LLDAP account using the `/register` command
 ### User Commands
 #### Register as a Subscriber
 ```sh
-/register <email>
+/register <email> [username] (optional)
 ```
 Allows users with the subscriber role to create an LLDAP account.
 
@@ -60,9 +64,13 @@ This bot was developed to enable subscription-based access to **Emby** and **Jel
 (&(uid={0})(|(memberof=cn=lifetime,ou=groups,dc=example,dc=com)(memberof=cn=subscribers,ou=groups,dc=example,dc=com)))
 ```
 
-## Future Updates
-Planned features include:
-- **Lifetime Subscriber Role Support**: Grant permanent access to specific users.
+### Updates
+
+
+## V1.5
+- Lifetime Subscriber Role Support
+- Custom Username Support
+- Shows both discord username and user id in console output
 
 
 ## Support
