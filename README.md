@@ -29,6 +29,8 @@ This bot **does not** handle role subscription management. You must use a separa
 
 Once assigned, users can register an LLDAP account using the `/register` command. They will receive a temporary password and a link to update it via a private message:
 
+![Register Command](https://i.imgur.com/FjPqHJT.png)
+
 ![Reply Example](https://i.imgur.com/ZI5xMyo.png)
 
 ## Available Commands
@@ -60,9 +62,13 @@ This bot was developed to enable subscription-based access to **Emby** and **Jel
 (&(uid={0})(|(memberof=cn=lifetime,ou=groups,dc=example,dc=com)(memberof=cn=subscribers,ou=groups,dc=example,dc=com)))
 ```
 
-## Future Updates
-Planned features include:
-- **Lifetime Subscriber Role Support**: Grant permanent access to specific users.
+### Updates
+
+
+## V1.5
+- Lifetime Subscriber Role Support
+- Custom Username Support
+- Shows both discord username and user id in console output
 
 
 ## Support
