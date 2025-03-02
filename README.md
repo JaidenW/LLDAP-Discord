@@ -40,7 +40,7 @@ Once assigned, users can register an LLDAP account using the `/register` command
 ### User Commands
 #### Register as a Subscriber
 ```sh
-/register <email>
+/register <email> [username] (optional)
 ```
 Allows users with the subscriber role to create an LLDAP account.
 
