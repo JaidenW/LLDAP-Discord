@@ -5,7 +5,7 @@ from discord import app_commands
 class DiscordBot:
     """Handles Discord bot setup, commands, and background tasks."""
     
-    def __init__(self, token, subscriber_role_name, subscriptions_sync, service_name):
+    def __init__(self, token, subscriber_role_name, subscriptions_sync, service_name, lifetime_role_name="Subscriber", lifetime_group_id=4):
         intents = discord.Intents.default()
         intents.guilds = True
         intents.members = True
@@ -13,10 +13,12 @@ class DiscordBot:
         self.tree = app_commands.CommandTree(self.bot)
         self.token = token
         self.subscriber_role_name = subscriber_role_name
+        self.lifetime_role_name = lifetime_role_name
+        self.lifetime_group_id = lifetime_group_id
         self.subscriptions_sync = subscriptions_sync
         self.user_manager = subscriptions_sync.user_manager
-        self.lldap_login_url = None  # Set during initialization
-        self.service_name = service_name  # Add service_name
+        self.lldap_login_url = None
+        self.service_name = service_name
 
     async def start(self, lldap_login_url):
         """Starts the Discord bot within the existing event loop."""
@@ -40,30 +42,35 @@ class DiscordBot:
         """Checks if the user has admin permissions."""
         return interaction.user.guild_permissions.administrator
 
-    async def register_command(self, interaction: discord.Interaction, email: str):
-        """Handles the /register command to create a new LLDAP user."""
+    async def register_command(self, interaction: discord.Interaction, email: str, username: str = None):
+        """Handles the /register command to create a new LLDAP user with appropriate group assignment."""
         guild = interaction.guild
         member = guild.get_member(interaction.user.id)
-        role = discord.utils.get(guild.roles, name=self.subscriber_role_name)
+        subscriber_role = discord.utils.get(guild.roles, name=self.subscriber_role_name)
+        lifetime_role = discord.utils.get(guild.roles, name=self.lifetime_role_name)
 
-        # Ensure the Subscribers role exists
-        if not role:
-            await interaction.response.send_message(
-                "❌ Error: The Subscribers role does not exist. Please contact an admin.", ephemeral=True
-            )
-            return
+        # Check which roles the user has
+        has_subscriber = subscriber_role and subscriber_role in member.roles
+        has_lifetime = lifetime_role and lifetime_role in member.roles
 
-        # Check if the user has the Subscribers role
-        if role not in member.roles:
+        if not (has_subscriber or has_lifetime):
             await interaction.response.send_message(
-                f"❌ You must have the **{self.subscriber_role_name}** role to register an account.", ephemeral=True
+                f"❌ You must have either the **{self.subscriber_role_name}** or **{self.lifetime_role_name}** role to register an account.", ephemeral=True
             )
             return
 
         # Normalize email and extract user details
         normalized_email = email.lower()
         user_id = str(interaction.user.id)
-        display_name = interaction.user.name
+        # Use provided username if given, otherwise default to Discord username
+        chosen_username = username if username else interaction.user.name
+
+        # Validate username (alphanumeric and max 20 characters)
+        if not chosen_username or not chosen_username.isalnum() or len(chosen_username) > 20:
+            await interaction.response.send_message(
+                "❌ Username must be alphanumeric (letters and numbers only) and no longer than 20 characters.", ephemeral=True
+            )
+            return
 
         # Check if email is already associated with an LLDAP account
         if await self.user_manager.check_email_exists(normalized_email):
@@ -79,22 +86,29 @@ class DiscordBot:
             )
             return
 
-        # Create user in LLDAP
-        temp_password, error = await self.user_manager.create_user(display_name, normalized_email, user_id)
+        # Determine account type message based on roles
+        account_type = "Lifetime" if has_lifetime else "Subscriber"
+        
+        # Create user in LLDAP with appropriate group assignments
+        temp_password, error = await self.user_manager.create_user(
+            chosen_username, normalized_email, user_id, 
+            subscriber_group=has_subscriber, 
+            lifetime_group=has_lifetime,
+            lifetime_group_id=self.lifetime_group_id
+        )
 
         if temp_password:
             await interaction.response.send_message(
-                f":white_check_mark: **__{self.service_name} Account Created!__**\n\n"
+                f":white_check_mark: **__{self.service_name} {account_type} Account Created!__**\n\n"
                 f"__**Use this link to log in and change your password:**__ {self.lldap_login_url}\n\n"
-                f"**Username**: `{display_name}`\n"
+                f"**Username**: `{chosen_username}`\n"
                 f"**Temporary Password**: `{temp_password}`",
                 ephemeral=True
             )
         else:
-            # Detect UNIQUE constraint error and provide a better message
             if "UNIQUE constraint failed" in str(error):
                 await interaction.response.send_message(
-                    "❌ You have already linked your Discord to an account.", ephemeral=True
+                    "❌ This username or Discord ID is already in use.", ephemeral=True
                 )
             else:
                 await interaction.response.send_message(
@@ -103,9 +117,13 @@ class DiscordBot:
 
     def setup_commands(self):
         """Sets up slash commands for the bot."""
-        @self.tree.command(name="register", description="Register a new LLDAP account")
-        async def register(interaction: discord.Interaction, email: str):
-            await self.register_command(interaction, email)
+        @self.tree.command(name="register", description="Register a new LLDAP account based on your Discord roles")
+        @app_commands.describe(
+            email="Your email address",
+            username="🔧 Choose your LLDAP username (optional, defaults to Discord username, max 30 chars, alphanumeric)"
+        )
+        async def register(interaction: discord.Interaction, email: str, username: str = None):
+            await self.register_command(interaction, email, username)
 
         @self.tree.command(name="sync_subscribers", description="Manually sync Discord subscribers with LLDAP")
         @app_commands.check(self.is_admin)

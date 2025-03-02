@@ -28,11 +28,25 @@ async def main():
     # Initialize user manager
     user_manager = UserManager(graphql_client, ldap_manager, config.subscribers_group_id)
 
-    # Initialize subscription sync
-    subscriptions_sync = SubscriptionSync(None, user_manager, config.subscriber_role_name, config.subscribers_group_id)
+    # Initialize subscription sync with Lifetime parameters
+    subscriptions_sync = SubscriptionSync(
+        None, 
+        user_manager, 
+        config.subscriber_role_name, 
+        config.subscribers_group_id,
+        config.lifetime_role_name,  # Add these from config
+        config.lifetime_group_id
+    )
 
-    # Initialize Discord bot with service_name
-    bot = DiscordBot(config.discord_bot_token, config.subscriber_role_name, subscriptions_sync, config.service_name)
+    # Initialize Discord bot with Lifetime parameters
+    bot = DiscordBot(
+        config.discord_bot_token, 
+        config.subscriber_role_name, 
+        subscriptions_sync, 
+        config.service_name,
+        config.lifetime_role_name,  # Add these from config
+        config.lifetime_group_id
+    )
     subscriptions_sync.bot = bot.bot  # Set bot instance after initialization
 
     # Start the bot within the same event loop

@@ -40,8 +40,8 @@ class UserManager:
         result = await self.graphql_client.execute_query(query, {"discordid": discord_id})
         return len(result.get("users", [])) > 0
 
-    async def create_user(self, display_name, email, discord_id):
-        """Creates a new LLDAP user and adds them to the Subscribers group."""
+    async def create_user(self, display_name, email, discord_id, subscriber_group=True, lifetime_group=False, lifetime_group_id=None):
+        """Creates a new LLDAP user and adds them to appropriate groups based on parameters."""
         temp_password = self.generate_temp_password()
         create_user_mutation = gql("""
         mutation CreateUser($input: CreateUserInput!) {
@@ -52,7 +52,7 @@ class UserManager:
         """)
         variables = {
             "input": {
-                "id": display_name,
+                "id": display_name,  # This is now the chosen username
                 "displayName": display_name,
                 "email": email,
                 "attributes": [{"name": "discordid", "value": [discord_id]}]
@@ -68,14 +68,36 @@ class UserManager:
             if not self.ldap_manager.set_password(user_dn, temp_password):
                 return None, "Failed to set LDAP password"
 
-            # Add to Subscribers group
-            await self.add_to_subscribers_group(user_id)
+            # Add to groups based on parameters
+            if subscriber_group:
+                await self.add_to_subscribers_group(user_id)
+            if lifetime_group and lifetime_group_id:
+                await self.add_to_group(user_id, lifetime_group_id)
+
             return temp_password, None
         except Exception as e:
             return None, str(e)
 
+
+
+    async def remove_from_group(self, user_id, group_id):
+        """Removes a user from a specified group in LLDAP."""
+        mutation = gql("""
+        mutation RemoveUserFromGroup($userId: String!, $groupId: Int!) {
+            removeUserFromGroup(userId: $userId, groupId: $groupId) {
+                ok
+            }
+        }
+        """)
+        await self.graphql_client.execute_mutation(mutation, {"userId": user_id, "groupId": group_id})
+
+
     async def add_to_subscribers_group(self, user_id):
         """Adds a user to the Subscribers group in LLDAP."""
+        await self.add_to_group(user_id, self.subscribers_group_id)
+
+    async def add_to_group(self, user_id, group_id):
+        """Adds a user to a specified group in LLDAP."""
         mutation = gql("""
         mutation AddUserToGroup($userId: String!, $groupId: Int!) {
             addUserToGroup(userId: $userId, groupId: $groupId) {
@@ -83,7 +105,7 @@ class UserManager:
             }
         }
         """)
-        await self.graphql_client.execute_mutation(mutation, {"userId": user_id, "groupId": self.subscribers_group_id})
+        await self.graphql_client.execute_mutation(mutation, {"userId": user_id, "groupId": group_id})
 
     async def remove_from_subscribers_group(self, user_id):
         """Removes a user from the Subscribers group in LLDAP."""
