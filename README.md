@@ -64,10 +64,10 @@ This bot was developed to enable subscription-based access to **Emby** and **Jel
 (&(uid={0})(|(memberof=cn=lifetime,ou=groups,dc=example,dc=com)(memberof=cn=subscribers,ou=groups,dc=example,dc=com)))
 ```
 
-### Updates
+## Updates
 
 
-## V1.5
+### V1.5
 - Lifetime Subscriber Role Support
 - Custom Username Support
 - Shows both discord username and user id in console output
