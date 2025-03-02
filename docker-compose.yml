@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  lldap-discord:
+    image: watlingj/lldap-discord:latest
+    container_name: LLDAP-Discord
+    command: python main.py
+    working_dir: /usr/src/app
+    restart: unless-stopped
+    environment: # Remove this section if using .env (delete .env if using this)
+      - DISCORD_BOT_TOKEN=DISCORDTOKEN
+      - LDAP_SERVER_URL=ldap://yoursite.com:3890
+      - LDAP_BIND_DN=uid=admin,ou=people,dc=example,dc=com
+      - LDAP_BIND_PASSWORD=PASSWORD
+      - LDAP_BASE_DN=dc=example,dc=com
+      - LLDAP_LOGIN_URL=https://YourLLDAPWebPage.com
+      - SUBSCRIBER_ROLE_NAME=Subscriber
+      - SUBSCRIBERS_GROUP_ID=4
+      - LIFETIME_ROLE_NAME=Lifetime
+      - LIFETIME_GROUP_ID=5
+      - SERVICE_NAME=YourServiceName
+      
