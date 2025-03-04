@@ -6,7 +6,8 @@ services:
     command: python main.py
     working_dir: /usr/src/app
     restart: unless-stopped
-    environment: # Remove this section if using .env (delete .env if using this)
+    environment:
+      - PYTHONUNBUFFERED=1
       - DISCORD_BOT_TOKEN=DISCORDTOKEN
       - LDAP_SERVER_URL=ldap://yoursite.com:3890
       - LDAP_BIND_DN=uid=admin,ou=people,dc=example,dc=com
@@ -18,4 +19,3 @@ services:
       - LIFETIME_ROLE_NAME=Lifetime
       - LIFETIME_GROUP_ID=5
       - SERVICE_NAME=YourServiceName
-      
