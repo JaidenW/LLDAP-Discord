@@ -26,6 +26,35 @@ LIFETIME_GROUP_ID=5
 SERVICE_NAME=YourServiceName
 ```
 
+
+## Docker Install
+
+Create ``docker-compose.yml``, populate the relevant environmental variables with your server info, then simply run ``docker compose up -d``
+```
+version: '3.8'
+services:
+  lldap-discord:
+    image: watlingj/lldap-discord:latest
+    container_name: LLDAP-Discord
+    command: python main.py
+    working_dir: /usr/src/app
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DISCORD_BOT_TOKEN=DISCORDTOKEN
+      - LDAP_SERVER_URL=ldap://yoursite.com:3890
+      - LDAP_BIND_DN=uid=admin,ou=people,dc=example,dc=com
+      - LDAP_BIND_PASSWORD=PASSWORD
+      - LDAP_BASE_DN=dc=example,dc=com
+      - LLDAP_LOGIN_URL=https://YourLLDAPWebPage.com
+      - SUBSCRIBER_ROLE_NAME=Subscriber
+      - SUBSCRIBERS_GROUP_ID=4
+      - LIFETIME_ROLE_NAME=Lifetime
+      - LIFETIME_GROUP_ID=5
+      - SERVICE_NAME=YourServiceName
+```
+
+
 ## Important Notes
 This bot **does not** handle role subscription management. You must use a separate subscription/payment service such as [Upgrade.Chat](https://upgrade.chat/). The bot operates on the assumption that users are already assigned the subscriber role.
 
