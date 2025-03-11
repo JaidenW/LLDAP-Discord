@@ -5,10 +5,11 @@ from gql import gql
 class UserManager:
     """Handles user-related operations for LLDAP, including creation and group management."""
     
-    def __init__(self, graphql_client, ldap_manager, subscribers_group_id):
+    def __init__(self, graphql_client, ldap_manager, subscribers_group_id, ldap_base_dn):
         self.graphql_client = graphql_client
         self.ldap_manager = ldap_manager
         self.subscribers_group_id = subscribers_group_id
+        self.ldap_base_dn = ldap_base_dn
 
     @staticmethod
     def generate_temp_password(length=12):
@@ -64,7 +65,7 @@ class UserManager:
             user_id = result["createUser"]["id"]
 
             # Set LDAP password
-            user_dn = f"uid={user_id},ou=people,dc=example,dc=com"
+            user_dn = f"uid={user_id},{self.ldap_base_dn}"
             if not self.ldap_manager.set_password(user_dn, temp_password):
                 return None, "Failed to set LDAP password"
 
