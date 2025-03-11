@@ -65,7 +65,7 @@ class UserManager:
             user_id = result["createUser"]["id"]
 
             # Set LDAP password
-            user_dn = f"uid={user_id},{self.ldap_base_dn}"
+            user_dn = f"uid={user_id},ou=people,{self.ldap_base_dn}"
             if not self.ldap_manager.set_password(user_dn, temp_password):
                 return None, "Failed to set LDAP password"
 
