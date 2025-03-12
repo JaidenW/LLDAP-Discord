@@ -16,7 +16,7 @@ class EnvironmentConfig:
         self.subscribers_group_id = int(os.getenv("SUBSCRIBERS_GROUP_ID"))
         self.lifetime_role_name = os.getenv("LIFETIME_ROLE_NAME")
         self.lifetime_group_id = int(os.getenv("LIFETIME_GROUP_ID"))
-        self.service_name = os.getenv("SERVICE_NAME") or "Slothflix" # Default to "Slothflix" if not set
+        self.service_name = os.getenv("SERVICE_NAME")
         self.public_url = os.getenv("PUBLIC_URL") or os.getenv("LLDAP_LOGIN_URL") # Default to 'lldap_login_url' if not set
 
     def get_ldap_username(self):
