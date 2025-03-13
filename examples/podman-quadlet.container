@@ -1,0 +1,49 @@
+###
+### lldap-discord - podman quadlet file
+### https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html
+###
+
+[Unit]
+Description=LLDAP Discord Bot
+Documentation=https://github.com/JaidenW/LLDAP-Discord
+Requires=lldap.service # assumes lldap is on same host
+# the following is only needed on podman < 5.3 IF `Requires` is not used
+# After=podman-user-wait-network-online.service
+
+[Service]
+Restart=on-failure
+
+[Container]
+AutoUpdate=registry
+ContainerName=lldap-discord
+Exec=python main.py
+Image=docker.io/watlingj/lldap-discord:latest
+Network=frontend.network # this network should have internet access
+WorkingDir=/usr/src/app
+
+# environmental variables
+Environment=PYTHONUNBUFFERED=1
+Environment=LDAP_SERVER_URL=ldap://yoursite.com:3890
+Environment=LDAP_BIND_DN=uid=admin,ou=people,dc=example,dc=com
+Environment=LDAP_BASE_DN=dc=example,dc=com
+Environment=LLDAP_LOGIN_URL=https://YourLLDAPWebPage.com
+Environment=SUBSCRIBER_ROLE_NAME=Subscribers
+Environment=SUBSCRIBERS_GROUP_ID=4
+Environment=LIFETIME_ROLE_NAME=Lifetime
+Environment=LIFETIME_GROUP_ID=5
+Environment=SERVICE_NAME=YourServiceName
+
+# this example uses secrets to set token & passwd but it can be done via ENV
+# Environment=DISCORD_BOT_TOKEN=DISCORDTOKEN
+# Environment=LDAP_BIND_PASSWORD=PASSWORD
+
+# this value is optional and defaults to LLDAP_LOGIN_URL
+# Environment=PUBLIC_URL=https://authelia.yourdomain.com
+
+# secrets
+Secret=lldap-discord-bot-token,type=env,target=DISCORD_BOT_TOKEN
+Secret=lldap-ldap-user-pass,type=env,target=LDAP_BIND_PASSWORD
+
+# run at startup
+[Install]
+WantedBy=default.target
