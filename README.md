@@ -55,6 +55,7 @@ services:
       - LIFETIME_ROLE_NAME=Lifetime
       - LIFETIME_GROUP_ID=5
       - SERVICE_NAME=YourServiceName
+      - PUBLIC_URL=https://authelia.yourdomain.com (OPTIONAL)
 ```
 
 
