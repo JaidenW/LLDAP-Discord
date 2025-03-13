@@ -24,8 +24,11 @@ SUBSCRIBERS_GROUP_ID=4
 LIFETIME_ROLE_NAME=Lifetime
 LIFETIME_GROUP_ID=5
 SERVICE_NAME=YourServiceName
+PUBLIC_URL=(Optional) The public facing URL of your auth system (ex: authelia)
 ```
 
+Note that `PUBLIC_URL` is not required and will default to the value of `LLDAP_LOGIN_URL` if not set. This makes it easy to integrate the bot with a different authentication frontend, such as Authentik or Authelia.
+Additionally, the `SUBSCRIBER_ROLE_NAME` and `LIFETIME_ROLE_NAME` are customizable, and the messages the bot sends will automatically update based on these values. An example use case is if you wanted to use the bot to assign service admins based on discord roles. The bot is also able to assign multiple roles to a single user.
 
 ## Docker Install
 
@@ -52,6 +55,7 @@ services:
       - LIFETIME_ROLE_NAME=Lifetime
       - LIFETIME_GROUP_ID=5
       - SERVICE_NAME=YourServiceName
+      - PUBLIC_URL=https://authelia.yourdomain.com (OPTIONAL)
 ```
 
 

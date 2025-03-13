@@ -19,10 +19,12 @@ class DiscordBot:
         self.user_manager = subscriptions_sync.user_manager
         self.lldap_login_url = None
         self.service_name = service_name
+        self.public_url = None
 
-    async def start(self, lldap_login_url):
+    async def start(self, lldap_login_url, public_url):
         """Starts the Discord bot within the existing event loop."""
         self.lldap_login_url = lldap_login_url
+        self.public_url = public_url
         self.setup_commands()
         self.bot.event(self.on_ready)
         await self.bot.start(self.token)
@@ -87,7 +89,7 @@ class DiscordBot:
             return
 
         # Determine account type message based on roles
-        account_type = "Lifetime" if has_lifetime else "Subscriber"
+        account_type = self.lifetime_role_name if has_lifetime else self.subscriber_role_name
         
         # Create user in LLDAP with appropriate group assignments
         temp_password, error = await self.user_manager.create_user(
@@ -100,7 +102,7 @@ class DiscordBot:
         if temp_password:
             await interaction.response.send_message(
                 f":white_check_mark: **__{self.service_name} {account_type} Account Created!__**\n\n"
-                f"__**Use this link to log in and change your password:**__ {self.lldap_login_url}\n\n"
+                f"__**Use this link to log in and change your password:**__ {self.public_url}\n\n"
                 f"**Username**: `{chosen_username}`\n"
                 f"**Temporary Password**: `{temp_password}`",
                 ephemeral=True

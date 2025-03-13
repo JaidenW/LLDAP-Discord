@@ -51,7 +51,7 @@ async def main():
 
     # Start the bot within the same event loop
     try:
-        await bot.start(config.lldap_login_url)
+        await bot.start(config.lldap_login_url, config.public_url)
     finally:
         await auth_manager.close()  # Clean up AuthManager session
 
