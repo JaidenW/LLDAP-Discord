@@ -26,7 +26,7 @@ async def main():
     ldap_manager = LDAPManager(config.ldap_server, config.ldap_bind_dn, config.ldap_bind_password)
 
     # Initialize user manager
-    user_manager = UserManager(graphql_client, ldap_manager, config.subscribers_group_id)
+    user_manager = UserManager(graphql_client, ldap_manager, config.subscribers_group_id, config.ldap_base_dn)
 
     # Initialize subscription sync with Lifetime parameters
     subscriptions_sync = SubscriptionSync(
