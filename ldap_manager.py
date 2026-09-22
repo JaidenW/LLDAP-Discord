@@ -2,7 +2,7 @@ from ldap3 import Server, Connection, ALL, MODIFY_REPLACE
 
 class LDAPManager:
     """Handles LDAP operations, such as setting user passwords."""
-    
+
     def __init__(self, server_url, bind_dn, bind_password):
         self.server_url = server_url
         self.bind_dn = bind_dn
@@ -14,7 +14,11 @@ class LDAPManager:
             server = Server(self.server_url, get_info=ALL)
             conn = Connection(server, self.bind_dn, self.bind_password, auto_bind=True)
 
-            conn.modify(user_dn, {'userPassword': [(MODIFY_REPLACE, [new_password])]})
+            conn.extend.standard.modify_password(
+                user=user_dn,
+                old_password='',
+                new_password=new_password
+            )
 
             if conn.result['description'] == 'success':
                 print(f"✅ Password set successfully for {user_dn}")
